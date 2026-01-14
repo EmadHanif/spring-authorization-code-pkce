@@ -86,7 +86,7 @@ http://localhost:8080/oauth2/authorize?response_type=code&client_id=client&redir
 ```
 ### Login Credentials
 
-The authorization request redirects to the default Spring Security login page (`/login`).
+The authorization request redirects to the login page (`/login`).
 
 Use the following **sample credentials** to authenticate:
 
@@ -100,7 +100,7 @@ After successful authentication, the server redirects to the configured `redirec
 
 Provide the obtained `authorization_code` along with the corresponding `code_verifier`:
 
-```
+```bash
 curl --request POST \
   --url http://localhost:8080/oauth2/token \
 --header 'content-type: application/x-www-form-urlencoded' \
@@ -114,7 +114,7 @@ curl --request POST \
 
 ### Generate Refresh Token
 
-```
+```bash
 curl --request POST \
   --url http://localhost:8080/oauth2/token \
   --header 'authorization: Basic Y2xpZW50OnNlY3JldA==' \
@@ -127,7 +127,7 @@ curl --request POST \
 
 ### Introspect Token
 
-```
+```bash
 curl --request POST \
   --url http://localhost:8080/oauth2/introspect \
   --header 'authorization: Basic Y2xpZW50OnNlY3JldA==' \
@@ -139,7 +139,7 @@ curl --request POST \
 
 The example controller demonstrates secured API access.
 
-### Public endpoint (No Authentication Required):
+### Public Endpoint (No Authentication Required):
 ```bash
 curl --request GET \
   --url http://localhost:8080/api/v1/example/m1
