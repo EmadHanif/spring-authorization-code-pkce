@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>dev.emad</groupId>
-    <artifactId>spring-authorization-pkce</artifactId>
+    <artifactId>spring-authorization-code-pkce</artifactId>
     <version>1.0.1</version>
-    <name>spring-authorization-pkce</name>
+    <name>spring-authorization-code-pkce</name>
     <description>Implementation of OAuth2.0 Authorization PKCE</description>
 
     <properties>
