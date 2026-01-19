@@ -31,9 +31,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.jackson.CoreJacksonModule;
 import org.springframework.security.jackson.SecurityJacksonModules;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.jackson.OAuth2AuthorizationServerJacksonModule;
@@ -168,30 +170,23 @@ public class AuthorizationServerConfig {
   @Bean
   public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
     return context -> {
-      Authentication authentication = context.getPrincipal();
+      if (!OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) return;
+      Authentication principal = context.getPrincipal();
 
-      UsernamePasswordAuthenticationToken authenticationToken = context.getPrincipal();
+      // Optional...
+      if (!(principal instanceof UsernamePasswordAuthenticationToken authenticationToken)) return;
+      if (!(authenticationToken.getPrincipal() instanceof User user)) return;
 
-      if (authenticationToken.getPrincipal() instanceof User) {
+      Set<String> authorities =
+          Optional.of(authenticationToken.getAuthorities()).orElse(Collections.emptySet()).stream()
+              .map(GrantedAuthority::getAuthority)
+              .collect(Collectors.toSet());
 
-        User user = (User) authentication.getPrincipal();
-
-        Set<String> authorities =
-            Optional.of(authenticationToken.getAuthorities())
-                .orElse(Collections.emptySet())
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
-
-        if (context.getTokenType().getValue().equals("access_token")) {
-
-          context
-              .getClaims()
-              .claim("authorities", authorities)
-              .claim("id", user.getId())
-              .claim("name", user.getFullName());
-        }
-      }
+      context
+          .getClaims()
+          .claim("authorities", authorities)
+          .claim("id", Objects.requireNonNull(user.getId()))
+          .claim("name", user.getFullName());
     };
   }
 
